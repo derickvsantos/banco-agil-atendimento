@@ -8,7 +8,6 @@ from typing import Literal
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from config.variables import llm
 from langgraph.graph import StateGraph, START
-from contextlib import suppress
 from langgraph.checkpoint.memory import MemorySaver
 
 def agent_triagem(state: EstadoAgil) -> Command[Literal["analista_credito", "agent_cambio", "entrevistador", "__end__"]]:
@@ -82,7 +81,7 @@ def agent_triagem(state: EstadoAgil) -> Command[Literal["analista_credito", "age
                     }
                 )
     except Exception as error:
-        with suppress(Exception): save_log_to_json(error, state)
+        save_log_to_json(error, state)
         return Command(goto="__end__", update={"mensagens": [AIMessage(content=mensagens_triagem['exception'])]})
     
 def analista_credito(state: EstadoAgil) -> Command[Literal["entrevistador", "__end__"]]:
@@ -129,7 +128,7 @@ def analista_credito(state: EstadoAgil) -> Command[Literal["entrevistador", "__e
         # Resposta padrão
         return Command(update={"mensagens": [AIMessage(content=action.mensagem_resposta)]})
     except Exception as error:
-        with suppress(Exception): save_log_to_json(error, state)
+        save_log_to_json(error, state)
         return Command(goto="__end__", update={"mensagens": [AIMessage(content=mensagens_credito['exception'])]})
 
 def entrevistador(state: EstadoAgil) -> Command[Literal["analista_credito"]]:
@@ -172,7 +171,6 @@ def entrevistador(state: EstadoAgil) -> Command[Literal["analista_credito"]]:
             }
         )
     except Exception as error:
-        with suppress(Exception): save_log_to_json(error, state)
         return Command(goto="__end__", update={"mensagens": [AIMessage(content=mensagens_entrevistador['exception'])], "entrevista_etapa": 0})
 
 def agent_cambio(state: EstadoAgil) -> Command[Literal["__end__"]]:
@@ -192,7 +190,7 @@ def agent_cambio(state: EstadoAgil) -> Command[Literal["__end__"]]:
         ])
         return Command(goto="__end__", update={"mensagens": [response]})
     except Exception as error:
-        with suppress(Exception): save_log_to_json(error, state)
+        save_log_to_json(error, state)
         return Command(goto="__end__", update={"mensagens": [AIMessage(content=mensagens_cambio['exception'])]})
 
 def call_agents():
