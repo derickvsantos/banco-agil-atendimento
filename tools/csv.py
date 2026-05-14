@@ -9,20 +9,12 @@ def validar_cliente(cpf: str, data_nascimento: str) -> Union[Dict[str, Any], boo
     """
     try:
         df = pd.read_csv("./resources/clientes.csv", dtype={"cpf": str}, sep=";")
-        
-        # 1. Limpa a coluna do DataFrame: substitui tudo que NÃO for dígito (\D) por vazio
         df['cpf'] = df['cpf'].astype(str).str.replace(r'\D', '', regex=True)
-        
-        # 2. Limpa o parâmetro recebido
         clean_cpf = ''.join(filter(str.isdigit, str(cpf)))
-        
-        # 3. Faz o match perfeito apenas com números
         match = df[(df['cpf'] == clean_cpf) & (df['data_nascimento'] == data_nascimento)]
         
         if not match.empty:
             cliente = match.iloc[0]
-            
-            # Nota: pd.isna() é mais seguro aqui caso o score ou limite sejam 0.
             if pd.isna(cliente.get("nome")) or pd.isna(cliente.get("score")) or pd.isna(cliente.get("limite_atual")):
                 raise Exception("Falha ao resgatar dados do cliente")
                 
