@@ -1,22 +1,35 @@
-from typing import Annotated, Literal, TypedDict, List
-from pydantic import BaseModel, Field
+from typing import Annotated, Literal, List
+from pydantic import BaseModel, Field, field_validator
 from langgraph.graph.message import add_messages
 from langchain_core.messages import BaseMessage
 
-class EstadoAgil(TypedDict):
-    mensagens: Annotated[List[BaseMessage], add_messages]
-    cpf: str
-    data_nascimento: str
-    nome: str
-    autenticado: bool
-    tentativas: int
-    score: int
-    limite_atual: float
-    entrevista_etapa: int
-    score_atualizado: bool
+class EstadoAgil(BaseModel):
+    messages: Annotated[List[BaseMessage], add_messages] = Field(default_factory=list)
+    cpf: str | None = None
+    data_nascimento: str | None = None
+    nome: str | None = None
+    autenticado: bool = False
+    tentativas: int = 0
+    score: int = 0
+    limite_atual: float = 0.0
+    entrevista_etapa: int = 0
+    score_atualizado: bool = False
+
+    @field_validator("limite_atual", mode="before")
+    @classmethod
+    def formatar_limite(cls, v):
+        if v is None:
+            return 0.0
+        if isinstance(v, str):
+            v = v.replace("R$", "").replace(".", "").replace(",", ".").strip()
+            try:
+                return float(v)
+            except ValueError:
+                return 0.0
+        return float(v)
 
 class DecisaoRota(BaseModel):
-    agente: Literal["analista_credito", "agent_cambio"] = Field(
+    agente: Literal["analista_credito", "agent_cambio", "__end__"] = Field(
         description="Escolha 'analista_credito' para crédito, 'agent_cambio' para câmbio, ou '__end__' se o usuário quiser encerrar"
     )
 

@@ -77,7 +77,6 @@ A arquitetura foi construída utilizando **LangGraph**, que permite a criação 
    ```env
    GOOGLE_API_KEY=sua_chave_aqui
    TAVILY_API_KEY=sua_chave_aqui
-   MODEL=modelo IA por default gemini-2.5-flash
    ```
 3. Instale as dependências:
    ```bash

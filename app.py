@@ -1,5 +1,4 @@
 import streamlit as st
-import uuid
 from langchain_core.messages import HumanMessage, AIMessage
 from agents.agents import call_agents
 from agents.models import EstadoAgil
@@ -8,6 +7,15 @@ from agents.models import EstadoAgil
 def get_workflow():
     return call_agents()
 
+def extrair_texto_limpo(mensagem):
+    """Extrai apenas a string de texto, lidando com retornos do Gemini."""
+    conteudo = mensagem.content
+    if isinstance(conteudo, list):
+        partes_texto = [item.get("text", "") for item in conteudo if isinstance(item, dict) and "text" in item]
+        return " ".join(partes_texto) if partes_texto else str(conteudo)
+    
+    return str(conteudo)
+
 def main():
     st.set_page_config(page_title="Banco Ágil - Atendimento", page_icon="🤖")
     st.title("🤖 Banco Ágil - Atendimento")
@@ -15,55 +23,37 @@ def main():
     agents = get_workflow()
 
     if "thread_id" not in st.session_state:
-        st.session_state.thread_id = str(uuid.uuid4())
+        st.session_state.thread_id = "sessao_teste"
         
     config = {"configurable": {"thread_id": st.session_state.thread_id}}
 
     if "state" not in st.session_state:
-        st.session_state.state = EstadoAgil(
-            mensagens=[],
-            cpf=None,
-            data_nascimento=None,
-            nome=None,
-            autenticado=False,
-            tentativas=0,
-            score=0,
-            limite_atual=0.0,
-            entrevista_etapa=0,
-            score_atualizado=False
-        )
-        
-        resultado = agents.invoke(st.session_state.state, config=config)
+        resultado = agents.invoke(EstadoAgil(), config=config)
+        st.session_state.state = EstadoAgil.model_validate(resultado)
 
-        for k, v in resultado.items():
-            st.session_state.state[k] = v
-
-    for msg in st.session_state.state.get("mensagens", []):
+    for msg in st.session_state.state.messages:
         if isinstance(msg, HumanMessage):
             with st.chat_message("user"):
                 st.write(msg.content)
         elif isinstance(msg, AIMessage):
-            with st.chat_message("assistant"):
-                st.write(msg.content)
+            texto_ai = extrair_texto_limpo(msg)
+            if texto_ai.strip():
+                with st.chat_message("assistant"):
+                    st.write(texto_ai)
 
     user_input = st.chat_input("Digite sua mensagem...")
 
     if user_input:
         with st.chat_message("user"):
             st.write(user_input)
-            
-        nova_mensagem = HumanMessage(content=user_input)
-        st.session_state.state["mensagens"].append(nova_mensagem)
+        st.session_state.state.messages.append(HumanMessage(content=user_input))
         with st.spinner("Processando..."):
-            novo_estado = agents.invoke(st.session_state.state, config=config)
-            st.session_state.state = novo_estado
-            lista_mensagens = st.session_state.state.get("mensagens", [])
-            if lista_mensagens:
-                ultima_msg = lista_mensagens[-1]
-                if isinstance(ultima_msg, AIMessage):
-                    with st.chat_message("assistant"):
-                        st.write(ultima_msg.content)
-                    
+            resultado = agents.invoke(
+                {"messages": [HumanMessage(content=user_input)]}, 
+                config=config
+            )
+            st.session_state.state = EstadoAgil.model_validate(resultado)
+                        
         st.rerun()
 
 if __name__ == "__main__":

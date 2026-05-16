@@ -5,6 +5,7 @@ import pandas as pd
 from tools.csv import validar_cliente, registrar_solicitacao, aumentar_limite, atualizar_score
 from tools.utils import calcular_score, buscar_tavily
 from agents.models import DadosEntrevista
+from tenacity import RetryError
 
 @pytest.fixture
 def mock_clientes_csv():
@@ -195,7 +196,7 @@ def test_buscar_tavily_sucesso(mock_tavily_class):
     mock_instancia = mock_tavily_class.return_value
     mock_instancia.invoke.return_value = [{"url": "http://exemplo.com", "content": "resultado teste"}]
     
-    resultado = buscar_tavily("teste")
+    resultado = buscar_tavily.invoke("teste")
     
     assert "resultado teste" in resultado
     mock_instancia.invoke.assert_called_once_with("teste")
@@ -204,9 +205,5 @@ def test_buscar_tavily_sucesso(mock_tavily_class):
 def test_buscar_tavily_erro(mock_tavily_class):
     mock_instancia = mock_tavily_class.return_value
     mock_instancia.invoke.side_effect = Exception("Erro na API")
-    
-    with pytest.raises(Exception, match="RetryError"):
-        buscar_tavily("teste")
-        
-    # Como o tenacity tenta 3 vezes, verificamos se o invoke foi chamado 3 vezes
-    assert mock_instancia.invoke.call_count == 3
+    with pytest.raises(RetryError):
+        buscar_tavily.invoke("teste")

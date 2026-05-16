@@ -18,8 +18,9 @@ def save_log_to_json(erro: Exception, state: Dict[str, Any]) -> None:
         filepath = log_dir / name_log
 
         # Limpeza no state pra não dar raise em not json serializable
+        state_dict = state.model_dump()
         state_clean = {}
-        for k, v in state.items():
+        for k, v in state_dict.items():
             if isinstance(v, list):
                 state_clean[k] = [m.content if isinstance(m, BaseMessage) else str(m) for m in v]
             else:

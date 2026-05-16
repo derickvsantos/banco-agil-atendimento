@@ -58,10 +58,15 @@ def aumentar_limite(cpf: str, limite_atual: float, score: int, valor_solicitado:
                 break
         
         status = 'aprovado' if valor_solicitado <= limite_maximo_permitido else 'rejeitado'
-        registrar_solicitacao(cpf, limite_atual, valor_solicitado, status)
+        
+        clean_cpf = ''.join(filter(str.isdigit, str(cpf)))
+        
+        registrar_solicitacao(clean_cpf, limite_atual, valor_solicitado, status)
+        
         if status == 'aprovado':
             df_clientes = pd.read_csv("./resources/clientes.csv", dtype={"cpf": str}, sep=";")
-            df_clientes.loc[df_clientes['cpf'] == cpf, 'limite_atual'] = valor_solicitado
+            df_clientes_clean_cpf = df_clientes['cpf'].astype(str).str.replace(r'\D', '', regex=True)
+            df_clientes.loc[df_clientes_clean_cpf == clean_cpf, 'limite_atual'] = valor_solicitado
             df_clientes.to_csv("./resources/clientes.csv", index=False, sep=";")
             return True
         else:
@@ -75,7 +80,9 @@ def atualizar_score(cpf: str, novo_score: int) -> None:
     """
     try:
         df_clientes = pd.read_csv("./resources/clientes.csv", dtype={"cpf": str}, sep=";")
-        df_clientes.loc[df_clientes['cpf'] == cpf, 'score'] = novo_score
+        clean_cpf = ''.join(filter(str.isdigit, str(cpf)))
+        df_clientes_clean_cpf = df_clientes['cpf'].astype(str).str.replace(r'\D', '', regex=True)
+        df_clientes.loc[df_clientes_clean_cpf == clean_cpf, 'score'] = novo_score
         df_clientes.to_csv("./resources/clientes.csv", index=False, sep=";")
     except Exception as e:
         raise Exception(f"Erro em atualizar_score: {e}")
