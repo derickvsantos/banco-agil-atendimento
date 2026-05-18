@@ -8,13 +8,16 @@ def get_workflow():
     return call_agents()
 
 def extrair_texto_limpo(mensagem):
-    """Extrai apenas a string de texto, lidando com retornos do Gemini."""
-    conteudo = mensagem.content
-    if isinstance(conteudo, list):
-        partes_texto = [item.get("text", "") for item in conteudo if isinstance(item, dict) and "text" in item]
-        return " ".join(partes_texto) if partes_texto else str(conteudo)
-    
-    return str(conteudo)
+       """Extrai apenas a string de texto, lidando com retornos do Gemini."""
+       conteudo = mensagem.content
+       if isinstance(conteudo, list):
+           partes_texto = [item.get("text", "") for item in conteudo if isinstance(item, dict) and "text" in item]
+           texto = " ".join(partes_texto) if partes_texto else str(conteudo)
+       else:
+           texto = str(conteudo)
+
+       texto = texto.replace("R$", r"R\$")
+       return texto
 
 def main():
     st.set_page_config(page_title="Banco Ágil - Atendimento", page_icon="🤖")

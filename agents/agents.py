@@ -118,12 +118,17 @@ def analista_credito(state: EstadoAgil) -> Command[Literal["entrevistador", "__e
             return Command(goto="__end__", update={"messages": [AIMessage(content=action.mensagem_resposta)]})
             
         if action.acao == "redirecionar_entrevista":
+            if state.score_atualizado:
+                return Command(goto="__end__", update={"messages": [AIMessage(content=mensagens_credito['atualizado_rejeitado'])]})
             return Command(
                 goto="entrevistador",
                 update={
                     "entrevista_etapa": 0
                 }
             )
+        
+        if action.acao == "oferecer_entrevista" and state.score_atualizado:
+            return Command(goto="__end__", update={"messages": [AIMessage(content=mensagens_credito['atualizado_rejeitado'])]})
 
         if action.acao == "processar_aumento" and action.valor_solicitado:
             if aumentar_limite(

@@ -39,12 +39,13 @@ mensagens_credito = {
         "2. Se pedirem aumento, você DEVE perguntar qual o NOVO VALOR total desejado.\n"
         "3. Se o cliente disser que quer aumento, mas AINDA NÃO informar o valor: use a ação 'solicitar_novo_valor' e retorne 0.0 no campo valor_solicitado.\n"
         "4. Se o cliente INFORMAR O NÚMERO EXATO que deseja aumentaro limite: use a ação 'processar_aumento' e extraia o número enviado pelo cliente para o campo valor_solicitado.\n"
-        "5. PROIBIDO aprovar qualquer valor sem antes passar pela análise interna.\n"
-        "6. Seja profissional e evite textos longos. Vá direto ao ponto financeiro.\n"
+        "5. Se o cliente infomar positivamente que quer fazer a entrevista você deve usar a ação 'redirecionar_entrevista'"
+        "6. PROIBIDO aprovar qualquer valor sem antes passar pela análise interna.\n"
+        "7. Seja profissional e evite textos longos. Vá direto ao ponto financeiro.\n"
     ),
     "aprovado": "Seu novo limite de R$ {valor_solicitado:.2f} foi **APROVADO** e já está disponível para uso.",
     "rejeitado": "No momento, não conseguimos liberar o limite de R$ {valor_solicitado:.2f} devido ao seu Score atual.\n\nVocê gostaria de responder algumas perguntas financeiras? Isso nos ajuda a recalcular seu Score e tentar uma nova aprovação agora mesmo.",
-    "atualizado_rejeitado": "Como acabamos de revisar seu perfil e o score não atingiu o patamar necessário, não consigo realizar uma nova análise no momento.",
+    "atualizado_rejeitado": "Analisamos seu novo score, mas ainda não foi possível liberar o aumento neste momento. Tente novamente em breve!",
     "exception": "Desculpe, ocorreu um erro em nosso sistema de análise. Estou registrando o erro e acionando a equipe técnica responsável."
 }
 
@@ -69,8 +70,9 @@ mensagens_cambio = {
         "FONTE DE DADOS: Utilize a ferramenta disponível para buscar as cotações atualizadas. Baseie sua resposta estritamente nos dados retornados por ela.\n"
         "REGRAS CRÍTICAS:\n"
         "1. Extraia o valor numérico e a moeda do resultado da busca.\n"
-        "2. Responda estritamente de forma curta: 'A cotação atual do [Moeda] é R$ [Valor]' usando o padrão brasileiro (R$ X,XX) com 2 casas decimais.\n"
-        "3. PROIBIDO adicionar saudações extras, curiosidades, história da moeda ou análises de mercado.\n"
+        "2. Para solicitações com mais de uma moeda, crie um tópico de lista (bullet point) estritamente no formato: '- A cotação atual do [Moeda] é R$ [Valor] para CADA moeda solicitada'.\n"
+        "3. Você DEVE OBRIGATORIAMENTE incluir os caracteres 'R' e '$' juntos ('R$') antes de CADA valor. O valor numérico deve ter EXATAS 2 casas decimais separadas por vírgula (exemplo válido: R$ 5,12).\n"
+        "4. PROIBIDO adicionar saudações extras, curiosidades, história da moeda ou análises de mercado.\n\n"
     ),
     "exception": "Desculpe, ocorreu um erro no nosso sistema de câmbio. Estou registrando o erro e acionando a equipe técnica responsável."
 }
