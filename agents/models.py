@@ -34,14 +34,20 @@ class DecisaoRota(BaseModel):
     )
 
 class ExtracaoCPF_DT_Nascimento(BaseModel):
-    cpf: str | None = Field(description="CPF informado pelo usuário. Apenas números.")
-    data_nascimento: str | None = Field(description="Data de nascimento informada. Formato DD/MM/AAAA.")
+    cpf: str = Field(description="CPF informado pelo usuário. Apenas números.")
+    data_nascimento: str = Field(description="Data de nascimento informada. Formato DD/MM/AAAA.")
 
 class AcaoCredito(BaseModel):
-    acao: Literal["informar_limite", "solicitar_novo_valor", "processar_aumento", "oferecer_entrevista", "redirecionar_entrevista", "encerrar", "responder_geral"] = Field(description="O que o agente deve fazer baseado na conversa.")
-    valor_solicitado: float | None = Field(description="Se o cliente informou o valor que deseja, coloque aqui.")
-    mensagem_resposta: str = Field(description="A resposta que será exibida para o cliente. Não há necessidade de saudar novamente. Caso seja um redirecionamento apenas redirecione.")
-
+    acao: Literal["informar_limite", "solicitar_novo_valor", "processar_aumento", "oferecer_entrevista", "redirecionar_entrevista", "encerrar"] = Field(
+        description="O que o agente deve fazer baseado na conversa."
+    )
+    valor_solicitado: float = Field(
+        description="O valor numérico desejado pelo cliente para o novo limite. Se ele não informou um valor, retorne 0.0."
+    )
+    mensagem_resposta: str = Field(
+        description="A resposta clara e direta que será exibida para o cliente. Não inclua saudações."
+    )
+    
 class DadosEntrevista(BaseModel):
     renda_mensal: float
     tipo_emprego: Literal["formal", "autônomo", "desempregado"]
@@ -50,4 +56,7 @@ class DadosEntrevista(BaseModel):
     tem_dividas: Literal["sim", "não"]
 
 class VerificadorEncerramento(BaseModel):
-    encerrar: bool = Field(description="Retorne True APENAS se o usuário pedir para parar, cancelar, sair ou encerrar a conversa. False caso contrário.")
+    encerrar: bool = Field(
+        default=False,
+        description="Retorne true APENAS se o usuário pedir explicitamente para parar, cancelar, sair ou encerrar. Se ele informar dados ou fizer uma pergunta, retorne false."
+    )

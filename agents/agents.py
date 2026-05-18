@@ -18,9 +18,10 @@ from config.variables import (
 from langgraph.graph import StateGraph, START
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import ToolNode, tools_condition
+from agents.mensagens import system_prompt_encerramento
 
 def verifica_encerrar(state):
-    intencao = llm_verificador.invoke([state.messages[-1]])
+    intencao = llm_verificador.invoke([SystemMessage(content=system_prompt_encerramento), state.messages[-1]])
             
     if intencao.encerrar:
         return Command(
@@ -49,7 +50,7 @@ def agent_triagem(state: EstadoAgil) -> Command[Literal["analista_credito", "age
             # Trava para manter na entrevista
             if 0 < state.entrevista_etapa <= 5:
                 return Command(goto="entrevistador")
-            decisao = llm_rota.invoke(state.messages)
+            decisao = llm_rota.invoke([SystemMessage(content=mensagens_triagem["system_prompt_rota"]), *state.messages[-5:]])
             return Command(
                 goto=decisao.agente
             )
