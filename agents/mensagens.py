@@ -6,8 +6,10 @@ instrucoes_base = (
     "Mantenha negritos apenas em informações cruciais e não quebre a formatação Markdown. "
     "REGRA GLOBAL DE ENCERRAMENTO: Se o usuário demonstrar intenção de parar, cancelar, sair, dar tchau ou encerrar o atendimento a qualquer momento, você DEVE acatar imediatamente e escolher a rota/ação de encerramento. NUNCA force o usuário a continuar."
 )
-
-system_prompt_encerramento = "Verifique pelas mensagens se o usuário explicitamente solicitou para parar, cancelar, sair ou encerrar. Se ele informar dados ou fizer uma pergunta, não encerre"
+mensagens_encerramento = {
+    "system_prompt_encerramento": "Verifique pelas mensagens se o usuário explicitamente solicitou para parar, cancelar, sair ou encerrar. Se ele informar dados ou fizer uma pergunta, não encerre",
+    "msg_despedida": "Encerrando o atendimento, Até logo!"
+}
 
 # Triagem
 mensagens_triagem = {
@@ -58,7 +60,6 @@ mensagens_entrevistador = {
         "4. Quantos dependentes moram com você? (0, 1, 2 ou 3+)",
         "5. Você possui alguma dívida ativa em outros bancos? (Sim/Não)"
     ],
-    "msg_despedida": "Encerrando o atendimento, Até logo!",
     "msg_fim": "Obrigado pelas informações! Analisei suas respostas e seu Score foi atualizado para **{novo_score}**.",
     "exception": "Desculpe, ocorreu um erro no nosso sistema de análise de score. Estou registrando o erro e acionando a equipe técnica responsável."
 }

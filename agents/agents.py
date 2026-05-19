@@ -2,7 +2,7 @@ from agents.models import EstadoAgil
 from tools.csv import validar_cliente, aumentar_limite, atualizar_score
 from tools.utils import calcular_score, buscar_tavily
 from tools.logger import save_log_to_json
-from agents.mensagens import mensagens_triagem, mensagens_credito, mensagens_entrevistador, mensagens_cambio
+from agents.mensagens import mensagens_triagem, mensagens_credito, mensagens_entrevistador, mensagens_cambio, mensagens_encerramento
 from langgraph.types import Command
 from typing import Literal
 from langchain_core.messages import AIMessage, SystemMessage
@@ -18,16 +18,15 @@ from config.variables import (
 from langgraph.graph import StateGraph, START
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import ToolNode, tools_condition
-from agents.mensagens import system_prompt_encerramento
 
 def verifica_encerrar(state):
-    intencao = llm_verificador.invoke([SystemMessage(content=system_prompt_encerramento), state.messages[-1]])
+    intencao = llm_verificador.invoke([SystemMessage(content=mensagens_encerramento['system_prompt_encerramento']), state.messages[-1]])
             
     if intencao.encerrar:
         return Command(
             goto="__end__", 
             update={
-                "messages": [AIMessage(content=mensagens_entrevistador['msg_despedida'])], 
+                "messages": [AIMessage(content=mensagens_encerramento['msg_despedida'])], 
                 "entrevista_etapa": 0
             }
         )
